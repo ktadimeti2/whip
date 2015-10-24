@@ -1,12 +1,12 @@
 #!/bin/bash
 
 BASEDIR="/Users/Keshav/Documents/Code/WhIP\ 2.0\ -\ Source\ Code/"
-TIME_MONITOR=11
-TIME_INTERVAL=1
+TIME_MONITOR=10
+TIME_INTERVAL=2
 
-ASLEEP=true
 VERBOSE=false
-COUNTER=5
+SLEEP_LIMIT=3
+NO_FACE_LIMIT=5
 
 # display usage
 display_usage()
@@ -22,28 +22,38 @@ img_cap ()
     if $VERBOSE; then echo "Commence monitoring...Taking pictures every $TIME_INTERVAL seconds for $TIME_MONITOR seconds"; fi
     TIME="1"
     NUM_SLEEP=0
+    NUM_NO_FACE=0
 
     while [[ $TIME -lt $TIME_MONITOR ]]
     do
 	if [[ $(($TIME % $TIME_INTERVAL)) -eq 0 ]]
 	then
-            #osascript $BASEDIR/screen_brighter.scpt
-	    if $VERBOSE; then REMAINDER=$(echo "$TIME_MONITOR-$TIME" | bc); echo "Been monitoring for $TIME seconds. Total monitor time remaining: $REMAINDER seconds"; fi
+       	    if $VERBOSE; then REMAINDER=$(echo "$TIME_MONITOR-$TIME" | bc); echo "Been monitoring for $TIME seconds. Total monitor time remaining: $REMAINDER seconds"; fi
 	    NEXT_PICTURE="snapshot.jpg"
-	    imagesnap -w 2 $NEXT_PICTURE &> /dev/null
+	    ImageSnap-v0.2.5/imagesnap -w 2 $NEXT_PICTURE &> /dev/null
 	    # filler method for detecting eyes
-	    RESPONSE=$(python temp/stuff.py 2>&1)
+	    RESPONSE=$(python checker.py 2>&1)
 	    echo $RESPONSE
 	    if [[ $RESPONSE == "closed" ]]
 	    then
 		let "NUM_SLEEP++"
 		echo "bad"
+	    
+	    elif [[ $RESPONSE == "noFace" ]]
+	    then
+		let "NUM_NO_FACE++"
+		echo "noFace"
 	    fi
-
-	    if [[ $NUM_SLEEP -eq $COUNTER ]]
+	    
+	    if [[ $NUM_SLEEP -eq $SLEEP_LIMIT ]]
 	    then 
 		mv $NEXT_PICTURE asleep.jpg
 		python asleep.py
+		exit 1
+	    
+	    elif [[ $NUM_NO_FACE -eq $NO_FACE_LIMIT ]]
+	    then
+		echo "No face here!!!!"
 		exit 1
 	    fi
 	fi
@@ -55,8 +65,7 @@ img_cap ()
 # temporary clean-up command
 clean_up()
 {
-    rm $BASEDIR/snapshot-*jpg
-
+    rm snapshot-*jpg
 }
 
 
@@ -74,6 +83,14 @@ do
 	    TIME_INTERVAL=$2
             shift
             ;;
+	--sleeplimit)
+	    SLEEP_LIMIT=$2
+	    shift
+	    ;;
+	--nofacelimit)
+	    NO_FACE_LIMIT=$2
+	    shift
+	    ;;
         -v|--verbose)
 	    VERBOSE=true
             ;;
