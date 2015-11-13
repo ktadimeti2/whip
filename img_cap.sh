@@ -7,6 +7,7 @@ TIME_INTERVAL=2
 VERBOSE=false
 SLEEP_LIMIT=3
 NO_FACE_LIMIT=5
+INTERVAL_FACTOR=4
 
 # display usage
 display_usage()
@@ -23,6 +24,16 @@ img_cap ()
     TIME="1"
     NUM_SLEEP=0
     NUM_NO_FACE=0
+
+    TIME_MONITOR=${TIME_MONITOR%.*}
+
+    if [[ $TIME_MONITOR -lt 60 ]]
+    then
+	TIME_INTERVAL=$(echo $TIME_MONITOR/$INTERVAL_FACTOR | bc)
+	TIME_INTERVAL=${TIME_INTERVAL%.*}
+    else
+	TIME_INTERVAL=10
+    fi
 
     while [[ $TIME -lt $TIME_MONITOR ]]
     do
@@ -76,8 +87,8 @@ do
     key=$1
     case $key in
         -t|--totaltime)
-	    TIME_MONITOR=$2
-            shift
+	    TIME_MONITOR=$(echo "$2*60" | bc)
+	    shift
             ;;
         -i|--interval)
 	    TIME_INTERVAL=$2

@@ -27,14 +27,16 @@ for (x,y,w,h) in faces:
     roi_color = img[y:y+h, x:x+w]
     eyes = eye_cascade.detectMultiScale(roi_gray)
     num_eyes = len(eyes)
+
     for (ex,ey,ew,eh) in eyes:
-        if(ex < x or ex > x+w or ey < y or ey > y+h):
-            num_eyes -=1
         cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
 
 # Check if number of faces and eyes detected prove awakeness
 
+#show_pic(cv2,img)
+
 if(num_faces > 0):
+
     if(num_eyes >= 2):
         exit('open')
     

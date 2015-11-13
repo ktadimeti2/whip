@@ -7,6 +7,7 @@ import subprocess
 import sys
 import random
 from subprocess import Popen
+from subprocess import check_output
 
 from Tkinter import *
 from ttk import Button, Style
@@ -23,7 +24,8 @@ def startMonitor():
 	arg = '-v &'
 	if (len(sys.argv) >= 2 and sys.argv[1].strip() != ''):
 		arg = sys.argv[1]
-	command = ['./img_cap.sh', arg]
+	command = ['./img_cap.sh %s' % arg]
+	print command
 	pro = Popen(command, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
 	global job 
 	job = pro
@@ -31,8 +33,10 @@ def startMonitor():
 
 def quitMonitor():
 	if (job != 0):
-		os.killpg(job.pid, signal.SIGTERM)
-		
+		try:
+			os.killpg(job.pid, signal.SIGTERM)
+		except OSError as e:
+			sys.exit()
 	sys.exit()
 
 def chooseTitle():
@@ -110,14 +114,7 @@ def main():
     
    # Create the WhIP Window with 'Start' and 'Quit' buttons
     app = WhIP_window(root)
-
-#    label = Label(app, text = "WhIP - The Alertness Assistant", font=("Helvetica", 16), justify=CENTER)
- #   label.pack()
-
-
     root.mainloop()
-#    os.killpg(pro.pid, signal.SIGTERM)  
-
 
 # main method        
 if __name__ == '__main__':

@@ -7,10 +7,14 @@ from Tkinter import *
 from subprocess import Popen
 from random import randint
 
-fields = 'Total time to monitor', 'Interval between taking pictures', 'After how many seconds to alert if asleep', 'After how many seconds to alert if away from computer'
+time=1
+minus_plus_width = 2
+tkinter_entries = []
+
+fields = 'Total number of minutes to monitor for', 'After how many seconds to alert if asleep', 'After how many seconds to alert if away from computer'
 
 args = []
-arg_id = ["-t", "-i", "--sleeplimit", "nofacelimit"]
+arg_id = ["-t", "--sleeplimit", "nofacelimit"]
 
 def fetch(entries):
    i = 0
@@ -28,16 +32,47 @@ def fetch(entries):
    p = Popen(["python", "commence_whip.py", arg_string])
    sys.exit()
 
+def create_set_time(entryIndex, num):
+   e = tkinter_entries[entryIndex]
+   def set_time():
+      time = int(e.get())
+      
+      if (time > 0):
+         time += num
+         e.delete(0,END)
+         e.insert(0,time)
+
+   return set_time
+
 def makeform(root, fields):
    entries = []
+
+   entryIndex=-1
    for field in fields:
+      entryIndex += 1
       row = Frame(root)
-      lab = Label(row, width=40, text=field, anchor="w", justify=LEFT)
+
+      # create the text box
       ent = Entry(row, width=5)
+      ent.insert(0,1)
+      tkinter_entries.append(ent)
+
+      set_time_minus = create_set_time(entryIndex,-1)
+      set_time_plus = create_set_time(entryIndex,1)
+
+      minus = Button(row, width=minus_plus_width, text="-", command=set_time_minus)
+      plus = Button(row, width=minus_plus_width, text="+", command=set_time_plus)
+      lab = Label(row, width=40, text=field, anchor="w", justify=LEFT)
+
       row.pack(side=TOP, fill=X, padx=5, pady=0)
       lab.pack(side=LEFT, expand=NO)
+      minus.pack(side=LEFT, expand=NO)
+      plus.pack(side=RIGHT, expand=NO)
       ent.pack(side=LEFT, expand=NO, fill=X)
+
       entries.append((field, ent))
+      global tkinter_entries
+
    return entries
 
 def chooseTitle():
@@ -62,7 +97,7 @@ if __name__ == '__main__':
 
    # to center the window and bring it to the front
    w = 450
-   h = 310
+   h = 290
    sw = root.winfo_screenwidth()
    sh = root.winfo_screenheight()
    x = (sw-w)/2
