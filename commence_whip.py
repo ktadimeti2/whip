@@ -25,11 +25,15 @@ def startMonitor():
 	if (len(sys.argv) >= 2 and sys.argv[1].strip() != ''):
 		arg = sys.argv[1]
 	command = ['./img_cap.sh %s' % arg]
-	print command
 	pro = Popen(command, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
 	global job 
 	job = pro
 	return pro
+
+def callInputWindow():
+	p = Popen(["python", "input_window.py"])
+	sys.exit()
+
 
 def quitMonitor():
 	if (job != 0):
@@ -61,6 +65,7 @@ class WhIP_window(Frame):
 	    self.centerWindow()
 	    self.startButton()
 	    self.quitButton()
+	    self.backButton()
 
     def centerWindow(self):
 	    sw = self.parent.winfo_screenwidth()
@@ -75,12 +80,26 @@ class WhIP_window(Frame):
 	    
 	    self.pack(fill=BOTH, expand=1)
 	    
-	    startButton = Button(self, text="Start", command=startMonitor)
+	    startButton = Button(self, text="Start   -->", command=startMonitor)
 
 	    # to calculate where to put button
-	    x1 = w/8
+	    x1 = w - w/3 + 10
 	    y1 = h/5
 	    startButton.place(x=x1, y=y1)
+
+    def backButton(self):
+	    self.style = Style()
+	    self.style.theme_use("default")
+	    
+	    self.pack(fill=BOTH, expand=1)
+	    
+	    backButton = Button(self, text="<--   Back", command=callInputWindow)
+
+	    # to calculate where to put button
+	    x1 = w/16 - 10
+	    y1 = h/5
+	    backButton.place(x=x1, y=y1)
+
 
     def quitButton(self):
 	    
@@ -92,7 +111,7 @@ class WhIP_window(Frame):
 	    quitButton = Button(self, text="Quit", command=quitMonitor)
 	    
 	    # to calculate where to put button
-	    x1 = w - 3*w/8 
+	    x1 = w/3 + 10
 	    y1 = h/5
 	    quitButton.place(x=x1, y=y1)
 

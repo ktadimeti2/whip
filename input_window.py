@@ -37,7 +37,7 @@ def create_set_time(entryIndex, num):
    def set_time():
       time = int(e.get())
       
-      if (time > 0):
+      if (num > 0 or time > 0):
          time += num
          e.delete(0,END)
          e.insert(0,time)
@@ -55,6 +55,8 @@ def makeform(root, fields):
       # create the text box
       ent = Entry(row, width=5)
       ent.insert(0,1)
+
+      global tkinter_entries
       tkinter_entries.append(ent)
 
       set_time_minus = create_set_time(entryIndex,-1)
@@ -71,7 +73,6 @@ def makeform(root, fields):
       ent.pack(side=LEFT, expand=NO, fill=X)
 
       entries.append((field, ent))
-      global tkinter_entries
 
    return entries
 
