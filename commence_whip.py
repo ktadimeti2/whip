@@ -20,6 +20,14 @@ h = 250
 global job 
 job = 0
 
+def quitWhIP():
+	global job
+	if (job != 0):
+		try:
+                        os.killpg(job.pid, signal.SIGTERM)
+                except OSError as e:
+                        sys.exit()
+
 def startMonitor():
 	arg = '-v &'
 	if (len(sys.argv) >= 2 and sys.argv[1].strip() != ''):
@@ -31,16 +39,13 @@ def startMonitor():
 	return pro
 
 def callInputWindow():
+	quitWhIP()
 	p = Popen(["python", "input_window.py"])
 	sys.exit()
 
 
 def quitMonitor():
-	if (job != 0):
-		try:
-			os.killpg(job.pid, signal.SIGTERM)
-		except OSError as e:
-			sys.exit()
+	quitWhIP()
 	sys.exit()
 
 def chooseTitle():
